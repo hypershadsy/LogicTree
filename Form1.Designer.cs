@@ -36,7 +36,7 @@
             this.buttonTextSubjunction = new System.Windows.Forms.Button();
             this.buttonTextNegation = new System.Windows.Forms.Button();
             this.buttonTextBisubjunction = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel1 = new LinedPanel();
             this.SuspendLayout();
             // 
             // textBox1

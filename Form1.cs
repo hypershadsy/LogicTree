@@ -12,16 +12,11 @@ namespace LogicTree
     public partial class Form1 : Form
     {
         BinaryTreeNode bintree;
-        LineMaker lm;
 
         public Form1()
         {
             InitializeComponent();
             bintree = new BinaryTreeNode(panel1);
-            lm = new LineMaker(panel1);
-            panel1.
-            lm.Size = this.Size;
-            this.Controls.Add(lm);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -281,10 +276,42 @@ namespace LogicTree
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            lm.Size = this.Size;
-            //lm.Invalidate();
             bintree.SpitToContainer();
-            //panel1.Invalidate();
+            panel1.Invalidate();
+        }
+    }
+
+    public class LinedPanel : Panel
+    {
+        static Random rand = new Random();
+
+        public LinedPanel()
+            : base()
+        {
+            this.Name = "LinedPanel";
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            Graphics g = e.Graphics;
+            Pen thePen = new Pen(Color.FromArgb(rand.Next()));
+            thePen.Width = 4;
+
+            g.DrawLines(thePen, RandPoints(20, Width, Height));
+        }
+
+        protected static Point[] RandPoints(int howmany, int maxX, int maxY)
+        {
+            Point[] pts = new Point[howmany];
+
+            for (int i = 0; i < pts.Length; i++)
+            {
+                pts[i] = new Point(rand.Next(maxX), rand.Next(maxY));
+            }
+
+            return pts;
         }
     }
 
