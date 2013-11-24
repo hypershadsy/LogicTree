@@ -32,26 +32,6 @@ namespace LogicTree
             //this.Size = new System.Drawing.Size(10, 27);
             //this.Load += new System.EventHandler(this.LineMaker_Load);
             //this.ResumeLayout(false);
-            sad
-                dsa
-                dsadsa
-                    dsa
-                    dsadsa
-                        dsa
-                        dsadsa
-                            dsa
-                            dsadsa
-                                dsa
-                                dsadsa
-                                    d
-                                    IDataAdapter
-                                        dsa
-                                        dsadsa
-                                            dsa
-                                            dsadsa
-                                                dsa
-                                                dsa
-
         }
 
         static Random rand = new Random();
@@ -62,6 +42,7 @@ namespace LogicTree
             Graphics g = e.Graphics;
             Pen thePen = new Pen(Color.FromArgb(rand.Next()));
             thePen.Width = 4;
+
             g.DrawLines(thePen, RandPoints(10, pan.Left, pan.Top,
                 pan.Left + pan.Width, pan.Top + pan.Height));
         }
