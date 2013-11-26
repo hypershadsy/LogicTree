@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace LogicTree
 {
@@ -12,36 +13,81 @@ namespace LogicTree
         public BinaryTreeNode Parent { get; private set; }
         public BinaryTreeNode Left { get; set; }
         public BinaryTreeNode Right { get; set; }
+        public bool BranchClosed { get; set; }
         private List<Button> data;
         public int MultidataSpacer = 30;
         public int ChildrenDepthY = 60;
 
+        public BinaryTreeNode()
+        {
+            this.data = new List<Button>();
+        }
+
         public BinaryTreeNode(Panel container)
+            : this()
         {
             this.Container = container;
-            data = new List<Button>();
         }
 
         public BinaryTreeNode(BinaryTreeNode parent)
+            : this()
         {
             this.Parent = parent;
             this.Container = Parent.Container;
-            this.data = new List<Button>();
         }
 
         public void AddData(Logical newdata)
         {
-            Button me = new Button();
-            me.AutoSize = true;
-            me.Text = newdata.ToString();
-            me.Tag = new ButtonTag(this, newdata);
-            data.Add(me);
+            Button buttonData = new Button();
+            buttonData.AutoSize = true;
+            buttonData.Text = newdata.ToString();
+            buttonData.Tag = new ButtonTag(this, newdata);
+            buttonData.Click += new EventHandler(buttonData_Click);
+            data.Add(buttonData);
+        }
+
+        void buttonData_Click(object sender, EventArgs e)
+        {
+            Button buttonData = (Button)sender;
+            ButtonTag tag = (ButtonTag)buttonData.Tag;
+
+            if (tag.Logic is Proposition)
+            {
+                //it's just a single proposition
+                //TODO: check for counterexamples in the tree
+            }
+            else if (tag.Logic is Expression)
+            {
+                Expression expressionHere = (Expression)tag.Logic;
+                List<BinaryTreeNode> obl = GetOpenBranchLeaves();
+
+                //TODO: execute tree rules
+                switch (expressionHere.junct)
+                {
+                    case Junctor.BISUBJUNCTION:
+                        break;
+                    case Junctor.CONJUNCTION:
+                        break;
+                    case Junctor.DISJUNCTION:
+                        break;
+                    case Junctor.SUBJUNCTION:
+                        break;
+                    case Junctor.NONE:
+                    default:
+                        MessageBox.Show("Invalid junctor: " + (int)expressionHere.junct);
+                        break;
+                }
+            }
+            else
+            {
+                MessageBox.Show("This isn't a Proposition or Expression.");
+            }
         }
 
         public int CountLeaves()
         {
             int many = 0;
-            
+
             if (Left == null)
                 many++;
             else
@@ -60,7 +106,7 @@ namespace LogicTree
             SpitToContainerRecurse(Container.Width / 2, 4, Container.Width / 4);
         }
 
-        protected void SpitToContainerRecurse(int left, int top, double spread)
+        private void SpitToContainerRecurse(int left, int top, double spread)
         {
             for (int i = 0; i < data.Count; i++)
             {
@@ -86,9 +132,41 @@ namespace LogicTree
                 Right.SpitToContainerRecurse((int)(left + spread), top + (data.Count - 1) * MultidataSpacer + ChildrenDepthY, spread / 2);
         }
 
-        public bool IsLeaf()
+        public bool IsOpenLeaf()
         {
-            return Left == null && Right == null;
+            bool leftDNE = Left == null;
+            bool rightDNE = Right == null;
+
+            Debug.Assert(leftDNE == rightDNE);
+
+            return !BranchClosed && leftDNE && rightDNE;
+        }
+
+        public List<BinaryTreeNode> GetOpenBranchLeaves()
+        {
+            List<BinaryTreeNode> openBranchLeaves = new List<BinaryTreeNode>();
+            GetOpenBranchLeavesRecurse(openBranchLeaves);
+
+            return openBranchLeaves;
+        }
+
+        private void GetOpenBranchLeavesRecurse(List<BinaryTreeNode> running)
+        {
+            //get self
+            if (IsOpenLeaf())
+                running.Add(this);
+
+            //get the right
+            if (Right != null)
+            {
+                Right.GetOpenBranchLeavesRecurse(running);
+            }
+
+            //get the left
+            if (Left != null)
+            {
+                Left.GetOpenBranchLeavesRecurse(running);
+            }
         }
 
         public void Clear()

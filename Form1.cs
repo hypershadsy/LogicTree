@@ -296,10 +296,10 @@ namespace LogicTree
             base.OnPaint(e);
 
             Graphics g = e.Graphics;
-            Pen thePen = new Pen(Color.FromArgb(rand.Next()));
-            thePen.Width = 4;
+            Pen thePen = new Pen(Color.FromArgb(64,64,64));
+            thePen.Width = 2;
 
-            g.DrawLines(thePen, RandPoints(20, Width, Height));
+            g.DrawLines(thePen, RandPoints(10, Width, Height));
         }
 
         protected static Point[] RandPoints(int howmany, int maxX, int maxY)
