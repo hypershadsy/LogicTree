@@ -59,29 +59,70 @@ namespace LogicTree
             else if (tag.Logic is Expression)
             {
                 Expression expressionHere = (Expression)tag.Logic;
-                List<BinaryTreeNode> obl = GetOpenBranchLeaves();
 
-                //TODO: execute tree rules
-                switch (expressionHere.junct)
+                //for every open leaf node underneath me,
+                foreach (BinaryTreeNode endpoint in GetOpenBranchLeaves())
                 {
-                    case Junctor.BISUBJUNCTION:
-                        break;
-                    case Junctor.CONJUNCTION:
-                        break;
-                    case Junctor.DISJUNCTION:
-                        break;
-                    case Junctor.SUBJUNCTION:
-                        break;
-                    case Junctor.NONE:
-                    default:
-                        MessageBox.Show("Invalid junctor: " + (int)expressionHere.junct);
-                        break;
+                    //TODO: execute tree rules
+                    switch (expressionHere.junct)
+                    {
+                        case Junctor.CONJUNCTION:
+                            if (!expressionHere.negated)
+                            {
+                                //a conjunction is true iff both conjuncts are true
+                            }
+                            else
+                            {
+                                //a conjunction is false iff A is false or B is false
+                            }
+                            break;
+
+                        case Junctor.DISJUNCTION:
+                            if (!expressionHere.negated)
+                            {
+                                //a disjunction is true iff A is true or B is true
+                            }
+                            else
+                            {
+                                //a disjunction is false iff both disjuncts are false
+                            }
+                            break;
+
+                        case Junctor.SUBJUNCTION:
+                            if (!expressionHere.negated)
+                            {
+                                //a subjunction is true iff A is false or B is true
+                            }
+                            else
+                            {
+                                //a subjunction is false iff A is true and B is false
+                            }
+                            break;
+
+                        case Junctor.BISUBJUNCTION:
+                            if (!expressionHere.negated)
+                            {
+                                //a bisubjunction is true iff both sides are true or both are false
+                            }
+                            else
+                            {
+                                //a bisubjunction is false iff A is false and B is true or A is true and B is false
+                            }
+                            break;
+
+                        case Junctor.NONE:
+                        default:
+                            MessageBox.Show("Invalid junctor: " + (int)expressionHere.junct);
+                            break;
+                    }
                 }
             }
             else
             {
                 MessageBox.Show("This isn't a Proposition or Expression.");
             }
+
+            buttonData.Enabled = false; //TODO: check it off
         }
 
         public int CountLeaves()
