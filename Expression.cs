@@ -16,22 +16,12 @@ namespace LogicTree
 
     class Expression : Logical
     {
-        public Logical lhs;
-        public Logical rhs;
-        public Junctor junct = Junctor.NONE;
+        public Logical LeftHandSide { get; set; }
+        public Logical RightHandSide { get; set; }
+        public Junctor Junctor = Junctor.NONE;
 
         public Expression()
         {
-        }
-
-        public Expression(Logical lhs, Logical rhs, Junctor junct)
-        {
-            this.lhs = lhs;
-            this.rhs = rhs;
-            this.junct = junct;
-
-            //if no junctor and left hand exists
-            System.Diagnostics.Debug.Assert(junct != Junctor.NONE);
         }
 
         public override string ToString()
@@ -43,51 +33,55 @@ namespace LogicTree
 
         internal override void ToStringRecurse(StringBuilder sb)
         {
-            if (negated)
+            if (Negated)
                 sb.Append(Logical.NEGATION);
             sb.Append('(');
-            lhs.ToStringRecurse(sb);
-            sb.Append(Logical.JunctorToChar(junct));
-            rhs.ToStringRecurse(sb);
+            LeftHandSide.ToStringRecurse(sb);
+            sb.Append(Logical.JunctorToChar(Junctor));
+            RightHandSide.ToStringRecurse(sb);
             sb.Append(')');
         }
 
         public override Logical Clone()
         {
-            return new Expression(lhs, rhs, junct);
+            Expression toReturn = new Expression();
+            toReturn.LeftHandSide = LeftHandSide.Clone();
+            toReturn.RightHandSide = RightHandSide.Clone();
+            toReturn.Junctor = Junctor;
+            return toReturn;
         }
     }
 
     class Proposition : Logical
     {
-        char symbol;
+        public char Symbol { get; set; }
 
-        public Proposition(char symbol, bool negated) : this(symbol)
-        {
-            this.negated = negated;
-        }
-
-        public Proposition(char symbol)
+        public Proposition(char symbol, bool negated)
         {
             System.Diagnostics.Debug.Assert(char.IsUpper(symbol) && char.IsLetter(symbol)); // must be uppercase letter
-            this.symbol = symbol;
+            this.Symbol = symbol;
+            this.Negated = negated;
         }
+
+        //public Proposition(char symbol) : this(symbol, false)
+        //{
+        //}
 
         internal override void ToStringRecurse(StringBuilder sb)
         {
-            sb.Append(ToString()); 
+            sb.Append(ToString());
         }
 
         public override string ToString()
         {
-            if (negated)
-                return Logical.NEGATION.ToString() + symbol;
-            return symbol.ToString();
+            if (Negated)
+                return Logical.NEGATION.ToString() + Symbol;
+            return Symbol.ToString();
         }
 
         public override Logical Clone()
         {
-            return new Proposition(symbol, negated);
+            return new Proposition(Symbol, Negated);
         }
     }
 
@@ -99,7 +93,7 @@ namespace LogicTree
         public const char NEGATION = '¬';
         public const char BISUBJUNCTION = '↔';
 
-        public bool negated;
+        public bool Negated { get; set; }
 
         //take a junctor and give the character representation of it
         public static char JunctorToChar(Junctor j)
@@ -141,5 +135,10 @@ namespace LogicTree
         abstract internal void ToStringRecurse(StringBuilder sb);
 
         abstract public Logical Clone();
+
+        public void FlipNegation()
+        {
+            Negated = !Negated;
+        }
     }
 }

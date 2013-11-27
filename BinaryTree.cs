@@ -66,84 +66,125 @@ namespace LogicTree
                     Debug.Assert(endpoint.Left == null && endpoint.Right == null);
 
                     //TODO: execute tree rules
-                    switch (expressionHere.junct)
+                    switch (expressionHere.Junctor)
                     {
                         case Junctor.CONJUNCTION:
-                            if (!expressionHere.negated)
+                            if (!expressionHere.Negated)
                             {
                                 //a conjunction is true iff both conjuncts are true
-                                endpoint.AddData(expressionHere.lhs.Clone());
-                                endpoint.AddData(expressionHere.rhs.Clone());
+                                endpoint.AddData(expressionHere.LeftHandSide.Clone());
+                                endpoint.AddData(expressionHere.RightHandSide.Clone());
                             }
                             else
                             {
                                 //a conjunction is false iff A is false or B is false
                                 endpoint.Left = new BinaryTreeNode(endpoint);
-                                var expl = expressionHere.lhs.Clone();
-                                expl.negated = !expl.negated;
+                                var expl = expressionHere.LeftHandSide.Clone();
+                                expl.FlipNegation();
                                 endpoint.Left.AddData(expl);
 
                                 endpoint.Right = new BinaryTreeNode(endpoint);
-                                var expr = expressionHere.rhs.Clone();
-                                expr.negated = !expr.negated;
+                                var expr = expressionHere.RightHandSide.Clone();
+                                expl.FlipNegation();
                                 endpoint.Right.AddData(expr);
                             }
                             break;
 
                         case Junctor.DISJUNCTION:
-                            if (!expressionHere.negated)
+                            if (!expressionHere.Negated)
                             {
                                 //a disjunction is true iff A is true or B is true
                                 endpoint.Left = new BinaryTreeNode(endpoint);
-                                var expl = expressionHere.lhs.Clone();
+                                var expl = expressionHere.LeftHandSide.Clone();
                                 endpoint.Left.AddData(expl);
 
                                 endpoint.Right = new BinaryTreeNode(endpoint);
-                                var expr = expressionHere.rhs.Clone();
+                                var expr = expressionHere.RightHandSide.Clone();
                                 endpoint.Right.AddData(expr);
                             }
                             else
                             {
                                 //a disjunction is false iff both disjuncts are false
-                                var expl = expressionHere.lhs.Clone();
-                                expl.negated = !expl.negated;
+                                var expl = expressionHere.LeftHandSide.Clone();
+                                expl.FlipNegation();
                                 endpoint.AddData(expl);
 
-                                var expr = expressionHere.rhs.Clone();
-                                expr.negated = !expr.negated;
+                                var expr = expressionHere.RightHandSide.Clone();
+                                expl.FlipNegation();
                                 endpoint.AddData(expr);
                             }
                             break;
 
                         case Junctor.SUBJUNCTION:
-                            if (!expressionHere.negated)
+                            if (!expressionHere.Negated)
                             {
                                 //a subjunction is true iff A is false or B is true
+                                endpoint.Left = new BinaryTreeNode(endpoint);
+                                var expl = expressionHere.LeftHandSide.Clone();
+                                expl.FlipNegation();
+                                endpoint.Left.AddData(expl);
+
+                                endpoint.Right = new BinaryTreeNode(endpoint);
+                                var expr = expressionHere.RightHandSide.Clone();
+                                endpoint.Right.AddData(expr);
                             }
                             else
                             {
                                 //a subjunction is false iff A is true and B is false
+                                var expl = expressionHere.LeftHandSide.Clone();
+                                endpoint.AddData(expl);
+
+                                var expr = expressionHere.RightHandSide.Clone();
+                                expl.FlipNegation();
+                                endpoint.AddData(expr);
                             }
                             break;
 
                         case Junctor.BISUBJUNCTION:
-                            if (!expressionHere.negated)
+                            if (!expressionHere.Negated)
                             {
                                 //a bisubjunction is true iff both sides are true or both are false
+                                endpoint.Left = new BinaryTreeNode(endpoint);
+                                var expl = expressionHere.LeftHandSide.Clone();
+                                endpoint.Left.AddData(expl);
+                                var expl2 = expressionHere.RightHandSide.Clone();
+                                endpoint.Left.AddData(expl2);
+
+                                endpoint.Right = new BinaryTreeNode(endpoint);
+                                var expr = expressionHere.LeftHandSide.Clone();
+                                expr.FlipNegation();
+                                endpoint.Right.AddData(expr);
+                                var expr2 = expressionHere.RightHandSide.Clone();
+                                expr2.FlipNegation();
+                                endpoint.Right.AddData(expr2);
                             }
                             else
                             {
-                                //a bisubjunction is false iff A is false and B is true or A is true and B is false
+                                //a bisubjunction is false iff (A is false and B is true) or (A is true and B is false)
+                                endpoint.Left = new BinaryTreeNode(endpoint);
+                                var expl = expressionHere.LeftHandSide.Clone();
+                                expl.FlipNegation();
+                                endpoint.Left.AddData(expl);
+                                var expl2 = expressionHere.RightHandSide.Clone();
+                                endpoint.Left.AddData(expl2);
+
+                                endpoint.Right = new BinaryTreeNode(endpoint);
+                                var expr = expressionHere.LeftHandSide.Clone();
+                                endpoint.Right.AddData(expr);
+                                var expr2 = expressionHere.RightHandSide.Clone();
+                                expr2.FlipNegation();
+                                endpoint.Right.AddData(expr2);
+
                             }
                             break;
 
                         case Junctor.NONE:
                         default:
-                            MessageBox.Show("Invalid junctor: " + (int)expressionHere.junct);
+                            MessageBox.Show("Invalid junctor: " + (int)expressionHere.Junctor);
                             break;
                     }
                 }
-                SpitToContainer();
+                ParentSpitToContainer();
             }
             else
             {
@@ -151,6 +192,14 @@ namespace LogicTree
             }
 
             buttonData.Enabled = false; //TODO: check it off
+        }
+
+        private void ParentSpitToContainer()
+        {
+            if (Parent == null)
+                SpitToContainer();
+            else
+                Parent.ParentSpitToContainer();
         }
 
         public int CountLeaves()

@@ -135,7 +135,7 @@ namespace LogicTree
                     Expression startingNewExpression = new Expression();
                     if (negated)
                     {
-                        startingNewExpression.negated = true; //this expression should be negated
+                        startingNewExpression.Negated = true; //this expression should be negated
                         negated = false; //negation is used up. we found who it's referring to
                     }
                     exp.Push(startingNewExpression);
@@ -154,37 +154,31 @@ namespace LogicTree
                         throw new LogicException();
                     }
                     //if we find a junctor, just assign it to the topmost Expression on the stack
-                    exp.Peek().junct = Logical.CharToJunctor(here);
+                    exp.Peek().Junctor = Logical.CharToJunctor(here);
                 }
                 else if (char.IsLetter(here))
                 {
                     if (exp.Count == 0)
                     {
                         //no expression and we found a proposition, interpret it as a single prop for return value
-                        Proposition newprop = new Proposition(here);
-                        if (negated)
-                            newprop.negated = true;
+                        Proposition newprop = new Proposition(here, negated);
                         return newprop;
                     }
                     //it's a Logical Proposition! let's put it where it belongs
                     Expression parent = exp.Peek();
-                    Proposition newProposition = new Proposition(here);
+                    Proposition newProposition = new Proposition(here, negated);
 
-                    //check for negation and reset if needed
-                    if (negated)
-                    {
-                        newProposition.negated = true; //this proposition should be negated
-                        negated = false; //negation is used up. we found who it's referring to
-                    }
+                    //negation is used up, if it was even enabled.
+                    negated = false;
                     
                     //check where in the parent expression it should be placed
-                    if (parent.lhs == null)
+                    if (parent.LeftHandSide == null)
                     {
-                        parent.lhs = newProposition;
+                        parent.LeftHandSide = newProposition;
                     }
-                    else if (parent.rhs == null)
+                    else if (parent.RightHandSide == null)
                     {
-                        parent.rhs = newProposition;
+                        parent.RightHandSide = newProposition;
                     }
                     else
                     {
@@ -199,7 +193,7 @@ namespace LogicTree
                     //are assigning it to it's parent
                     Expression complete = exp.Pop();
 
-                    if (complete.junct == Junctor.NONE) //this invalidates crap like (AB)
+                    if (complete.Junctor == Junctor.NONE) //this invalidates crap like (AB)
                     {
                         MessageBox.Show("Malformed expression: missing junctor");
                         throw new LogicException();
@@ -220,13 +214,13 @@ namespace LogicTree
 
                     Expression hisParent = exp.Peek();
 
-                    if (hisParent.lhs == null) //if lhs is not yet, put it there
+                    if (hisParent.LeftHandSide == null) //if lhs is not yet, put it there
                     {
-                        hisParent.lhs = complete;
+                        hisParent.LeftHandSide = complete;
                     }
-                    else if (hisParent.rhs == null) //or put it in rhs
+                    else if (hisParent.RightHandSide == null) //or put it in rhs
                     {
-                        hisParent.rhs = complete;
+                        hisParent.RightHandSide = complete;
                     }
                     else
                     {
@@ -299,7 +293,8 @@ namespace LogicTree
             Pen thePen = new Pen(Color.FromArgb(64,64,64));
             thePen.Width = 2;
 
-            g.DrawLines(thePen, RandPoints(10, Width, Height));
+            //TODO: real line drawing
+            //g.DrawLines(thePen, RandPoints(10, Width, Height));
         }
 
         protected static Point[] RandPoints(int howmany, int maxX, int maxY)
