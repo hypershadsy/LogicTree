@@ -51,11 +51,21 @@ namespace LogicTree
             rhs.ToStringRecurse(sb);
             sb.Append(')');
         }
+
+        public override Logical Clone()
+        {
+            return new Expression(lhs, rhs, junct);
+        }
     }
 
     class Proposition : Logical
     {
         char symbol;
+
+        public Proposition(char symbol, bool negated) : this(symbol)
+        {
+            this.negated = negated;
+        }
 
         public Proposition(char symbol)
         {
@@ -73,6 +83,11 @@ namespace LogicTree
             if (negated)
                 return Logical.NEGATION.ToString() + symbol;
             return symbol.ToString();
+        }
+
+        public override Logical Clone()
+        {
+            return new Proposition(symbol, negated);
         }
     }
 
@@ -124,5 +139,7 @@ namespace LogicTree
         }
 
         abstract internal void ToStringRecurse(StringBuilder sb);
+
+        abstract public Logical Clone();
     }
 }

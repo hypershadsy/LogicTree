@@ -18,7 +18,7 @@ namespace LogicTree
         public int MultidataSpacer = 30;
         public int ChildrenDepthY = 60;
 
-        public BinaryTreeNode()
+        private BinaryTreeNode()
         {
             this.data = new List<Button>();
         }
@@ -63,6 +63,8 @@ namespace LogicTree
                 //for every open leaf node underneath me,
                 foreach (BinaryTreeNode endpoint in GetOpenBranchLeaves())
                 {
+                    Debug.Assert(endpoint.Left == null && endpoint.Right == null);
+
                     //TODO: execute tree rules
                     switch (expressionHere.junct)
                     {
@@ -70,10 +72,21 @@ namespace LogicTree
                             if (!expressionHere.negated)
                             {
                                 //a conjunction is true iff both conjuncts are true
+                                endpoint.AddData(expressionHere.lhs.Clone());
+                                endpoint.AddData(expressionHere.rhs.Clone());
                             }
                             else
                             {
                                 //a conjunction is false iff A is false or B is false
+                                endpoint.Left = new BinaryTreeNode(endpoint);
+                                var expl = expressionHere.lhs.Clone();
+                                expl.negated = !expl.negated;
+                                endpoint.Left.AddData(expl);
+
+                                endpoint.Right = new BinaryTreeNode(endpoint);
+                                var expr = expressionHere.rhs.Clone();
+                                expr.negated = !expr.negated;
+                                endpoint.Right.AddData(expr);
                             }
                             break;
 
@@ -81,10 +94,24 @@ namespace LogicTree
                             if (!expressionHere.negated)
                             {
                                 //a disjunction is true iff A is true or B is true
+                                endpoint.Left = new BinaryTreeNode(endpoint);
+                                var expl = expressionHere.lhs.Clone();
+                                endpoint.Left.AddData(expl);
+
+                                endpoint.Right = new BinaryTreeNode(endpoint);
+                                var expr = expressionHere.rhs.Clone();
+                                endpoint.Right.AddData(expr);
                             }
                             else
                             {
                                 //a disjunction is false iff both disjuncts are false
+                                var expl = expressionHere.lhs.Clone();
+                                expl.negated = !expl.negated;
+                                endpoint.AddData(expl);
+
+                                var expr = expressionHere.rhs.Clone();
+                                expr.negated = !expr.negated;
+                                endpoint.AddData(expr);
                             }
                             break;
 
@@ -116,6 +143,7 @@ namespace LogicTree
                             break;
                     }
                 }
+                SpitToContainer();
             }
             else
             {
